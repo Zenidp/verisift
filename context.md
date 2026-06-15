@@ -74,7 +74,8 @@ verisift/
   verify.py            # verification gate + self-correction loop (TESTED, works)
   parsers.py           # << ONLY FILE LEFT TO IMPLEMENT — wire real DFIR tools here
   README.md            # setup + architecture + novelty
-  ACCURACY_REPORT.md   # template with [FILL] placeholders
+  ACCURACY_REPORT.md   # DONE — filled with real run data (run_id r-20260615-041925)
+  DATASET.md           # DONE — artifact sources, SHA-256, real-vs-synthetic, reproduce
   LICENSE              # MIT
   requirements.txt     # mcp, regipy, python-evtx
 ```
@@ -99,17 +100,17 @@ prefetch + amcache + evtx-4688; "presence" by mft + amcache; "logon" by evtx-462
 7. Run baseline once, observe hallucinations (needed for accuracy report).
 8. Drop verisift/ into the VM, register MCP server with Claude Code, iterate.
 
-## 6. Build plan (remaining work, priority order)
-- [ ] Implement `parsers.py::run_mft` first (timeline is the backbone). Keep the
-      RETURN SHAPE exactly as documented so verify.py keeps working untouched.
-- [ ] Implement run_prefetch, run_amcache, run_evtx.
-- [ ] Get ONE finding corroborated across >=2 artifacts -> minimum viable demo.
-- [ ] Record demo video AS SOON AS a self-correction sequence works (don't wait
-      for perfection).
-- [ ] Fill ACCURACY_REPORT.md [FILL]s with REAL numbers from the log. Never
-      invent numbers — DFIR judges will spot it.
-- [ ] Finalize README try-it-out steps.
-- [ ] Confirm LICENSE shows in GitHub About section.
+## 6. Build plan (status)
+- [x] Implement `parsers.py::run_mft` (18 records, BOM fix via utf-8-sig).
+- [x] Implement run_prefetch, run_amcache (1367), run_evtx (5 events).
+- [x] ONE finding corroborated across >=2 artifacts: `notepad.exe` CONFIRMED
+      across amcache + evtx_4688 + prefetch (computed by correlate()).
+- [ ] Record demo video (pipeline + self-correction sequence verified, READY).
+- [x] Fill ACCURACY_REPORT.md with REAL numbers from run_id r-20260615-041925.
+      0 invented numbers — all copied from exports/execution_log.jsonl.
+- [x] DATASET.md written (sources, SHA-256, real-vs-synthetic, reproduce steps).
+- [x] README finalized (hero, real demo output, provenance table).
+- [ ] Confirm LICENSE shows in GitHub About section (after push).
 
 ## 7. Hard rules / honesty guardrails (for the developer)
 - Do NOT fabricate accuracy numbers or findings. Honest failure modes RAISE the

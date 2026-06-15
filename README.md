@@ -184,6 +184,8 @@ verisift/
 > The `[CONFIRMED]` verdict rests on **two real, independent artifacts** (EVTX 4688 + Amcache).
 > The synthetic prefetch is only a third corroborator — disclosed, never load-bearing.
 
+Full sources, SHA-256 hashes, and reproduction steps: [`DATASET.md`](DATASET.md).
+
 ---
 
 ## 🎯 Why this wins on the rubric

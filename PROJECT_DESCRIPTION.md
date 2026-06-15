@@ -64,27 +64,46 @@ what it *confirmed* from what it merely *inferred* — with a full audit trail.
 
 ## The before/after that matters most
 
-We tested the baseline's prompt-based guardrail for bypass, then the same scenario
-against VeriSIFT:
+We want to be honest about what we actually tested. Protocol SIFT itself was **not
+installed on our SIFT instance**, so we did *not* run a head-to-head prompt-bypass
+of the baseline — we will not claim an experiment we didn't perform. Instead we
+verified the VeriSIFT guarantee directly, at the level where it lives:
 
-- **Baseline (prompt-based):** [FILL — describe what you observed when you probed
-  whether the agent could be steered toward a risky operation; document honestly.]
-- **VeriSIFT (architectural):** the same attempt is impossible — the destructive
-  tool is simply absent from the server. Post-run hash matched pre-run hash.
+- **The destructive capability is absent.** There is no `execute_shell` /
+  `run_command` tool on the server — `git grep` finds no write path to evidence.
+  The agent can only call typed read functions.
+- **Fail-closed, verified empirically.** We copied a fixture to a *writable* temp
+  file (mode `0644`) and called `EvidenceHandle.open()`. It was **refused** with
+  `ReadOnlyViolation`; only after `chmod 0444` did it open. (Reproducible — see the
+  spoliation test in the Accuracy Report.)
+- **No mutation across a full run.** The primary evidence SHA-256 was **identical
+  before and after** the end-to-end run (`26fd9de9…`), and all fixtures are mode
+  `0444`.
 
-This is the heart of the submission: moving the guarantee from *instruction* to
-*construction*.
+This is the heart of the submission: the guarantee is *construction*, not
+*instruction* — and we verified the construction rather than asserting a baseline
+comparison we couldn't run.
 
 ## Challenges we ran into
 
 - **Zero DFIR background.** We had to learn what artifacts actually corroborate
-  each other (why prefetch + amcache + 4688 together beat any one alone). [FILL —
-  add a specific thing that surprised you during testing.]
+  each other (why prefetch + amcache + 4688 together beat any one alone). What
+  surprised us: a bare `$MFT` carved from a fresh NTFS volume contains only system
+  metafiles (`$Boot`, `$LogFile`, …) and **no** user executables — so when our
+  `correlate()` honestly returned *no* MFT hit for `notepad.exe`, that was correct
+  behavior, not a bug. It taught us that "no corroboration from artifact X" is a
+  real signal, not a failure to be papered over.
 - **Raw tool output is huge.** Returning unparsed DFIR output floods the context
   window. We parse to structured JSON inside the server before it reaches the LLM.
 - **Stopping the loop.** Self-correction can spiral; we added a hard iteration cap
-  and a "nothing left to improve" stop condition.
-- [FILL — a real bug or dead-end you hit on the SIFT Workstation.]
+  (`MAX_ITERATIONS = 4`) and a "nothing left to improve" stop condition.
+- **Real bugs we hit on the workstation.** (1) `MFTECmd` writes a UTF-8 BOM on the
+  first CSV header field, so our column lookup silently missed until we read the
+  CSV as `utf-8-sig`. (2) `pyscca` has no `get_number_of_last_run_times()`, so our
+  first prefetch parser produced phantom year-1601 timestamps from unused run-time
+  slots; we fixed it by probing `get_last_run_time(i)` positionally and skipping
+  epoch-zero slots. Both were caught only by checking parsed output against the raw
+  artifact.
 
 ## What we learned
 
@@ -109,8 +128,14 @@ This is the heart of the submission: moving the guarantee from *instruction* to
 Scope is disk-image artifacts by design — depth over breadth. The corroboration
 rules are heuristic and a determined anti-forensic actor could defeat cross-artifact
 agreement. Accuracy on real evidence depends on the underlying parsers; see our
-Accuracy Report for measured false-positive and missed-artifact counts rather than
-claims. [FILL — one-line honest summary of measured accuracy once you have it.]
+Accuracy Report for the measured counts. On our test run (`run_id
+r-20260615-041925`) the pipeline behaved exactly as designed: of 3 proposed claims
+it **confirmed 1** (`notepad.exe`, corroborated across amcache + evtx-4688 +
+prefetch), **labeled 1 as inferred** (single-source `Administrator` logon), and
+**dropped 1** injected false claim (`EVILCORP.EXE`) — 0 false positives surviving
+to the final report, with the primary evidence hash unchanged before/after. Note
+this is a fixture corpus, not a real intrusion: it proves the pipeline's logic, not
+real-world malware-detection accuracy.
 
 ## Built with
 
