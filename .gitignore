@@ -1,1 +1,29 @@
+# ── Python ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ── Runtime / per-run artifacts (regenerated every execution) ───────────
 out/
+exports/
+analysis/forensic_audit.log
+
+# ── Bulky source images not needed for the demo ─────────────────────────
+# MFT_extracted.bin (the parsed artifact) is committed; the 10 MB source
+# NTFS image it was carved from is not.
+test_data/mft/ntfs_test.img
+
+# ── Never commit secrets / local env ────────────────────────────────────
+*.env
+.env
+*.pem
+*.key
+credentials*
+secrets*
+
+# ── Editor / OS noise ───────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+*.swp
