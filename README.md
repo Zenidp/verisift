@@ -59,6 +59,15 @@ STAGE 5 — final report  [honest: only what the artifacts support]
 
 ## 🏗️ Architecture
 
+<div align="center">
+<img src="docs/architecture.svg" alt="VeriSIFT Architecture Diagram" width="900"/>
+</div>
+
+> Full-resolution: [`docs/architecture.svg`](docs/architecture.svg)  ·  [`docs/architecture.png`](docs/architecture.png)
+
+**Key design principle:** the agent cannot reach evidence except through typed tools.
+No write path exists in code — this is **architectural**, not a prompt instruction.
+
 ```
         ┌────────────┐   typed tool calls    ┌────────────────────┐
         │  Agent     │ ───────────────────►  │  VeriSIFT MCP      │
